@@ -12,15 +12,14 @@ end_date = st.sidebar.date_input("End Date", pd.to_datetime("2023-12-31"))
 data = yf.download(stock_symbol, start=start_date, end=end_date)
 
 # Flatten MultiIndex columns if present
-# --- FIX APPLIED HERE: Simplified Column Renaming ---
-# Rename the columns to include the stock symbol (e.g., 'Close_AAPL') 
-# This is cleaner and avoids the complex MultiIndex flattening logic which 
-# was likely creating the extraneous data display.
-
-new_columns = {col: f"{col}_{stock_symbol}" for col in data.columns}
-data = data.rename(columns=new_columns)
+if isinstance(data.columns, pd.MultiIndex):
+    data.columns = ['_'.join(col).strip() for col in data.columns.values]
+else:
+    # Normal case (single-level columns) — append symbol manually
+    data.columns = [f"{col}_{stock_symbol}" for col in data.columns]
 
 
+   
 
 # Reset index to make 'Date' a column (instead of index)
 data = data.reset_index()
@@ -31,5 +30,5 @@ st.dataframe(data)
 
 # Plot Closing Price
 st.subheader(f"{stock_symbol} Closing Price Chart")
-fig = px.line(data, x="Date", y=f"Close_{stock_symbol}", title=f"{stock_symbol} Closing Price Over Time")
+fig = px.line(data, x=f"Date", y=f"Close_{stock_symbol}", title=f"{stock_symbol} Closing Price Over Time")
 st.plotly_chart(fig)
