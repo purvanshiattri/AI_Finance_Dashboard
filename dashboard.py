@@ -2,6 +2,11 @@ import yfinance as yf
 import pandas as pd
 import plotly.express as px
 import streamlit as st   
+st.set_page_config(page_title="Stock Dashboard", layout="wide")
+st.title("📈 AI Finance Dashboard")
+st.header("Stock Price Analysis")
+st.subheader("Daily Closing Prices")
+st.text("This dashboard shows live stock data using Yahoo Finance.")
 
 # Sidebar inputs
 stock_symbol = st.sidebar.text_input("Enter Stock Symbol", "AAPL")
@@ -17,9 +22,6 @@ if isinstance(data.columns, pd.MultiIndex):
 else:
     # Normal case (single-level columns) — append symbol manually
     data.columns = [f"{col}_{stock_symbol}" for col in data.columns]
-   
-
-   
 
 # Reset index to make 'Date' a column (instead of index)
 data = data.reset_index()
